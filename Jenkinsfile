@@ -1,12 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        SONARQUBE_SERVER = 'SonarQube'
-        SONARQUBE_TOKEN = credentials('sonarqube-token')
-        MONITORING_TOOL_API_KEY = credentials('monitoring-tool-api-key')
-    }
-
     stages {
         stage('Build') {
             steps {
@@ -32,14 +26,8 @@ pipeline {
         stage('Code Quality Analysis') {
             steps {
                 echo 'Running Code Quality Analysis...'
-                // Assuming SonarQube scanner is installed and configured
-                withSonarQubeEnv(SONARQUBE_SERVER) {
-                    sh 'sonar-scanner \
-                        -Dsonar.projectKey=MyProject \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=http://localhost:9000 \
-                        -Dsonar.login=$SONARQUBE_TOKEN'
-                }
+                // Assuming a local code quality tool or script
+                sh './run-code-quality-analysis.sh' // Replace with your actual script or command
             }
         }
 
@@ -67,7 +55,7 @@ pipeline {
                 echo 'Setting up monitoring and alerting...'
                 // Add your monitoring setup scripts or commands here
                 // For example, sending a notification to a monitoring tool API
-                sh 'curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer $MONITORING_TOOL_API_KEY" -d \'{"message": "Deployment complete", "status": "success"}\' https://monitoring-tool/api/alerts'
+                sh 'curl -X POST -H "Content-Type: application/json" -d \'{"message": "Deployment complete", "status": "success"}\' https://monitoring-tool/api/alerts'
             }
         }
     }
