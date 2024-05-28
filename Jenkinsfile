@@ -6,7 +6,7 @@ pipeline {
             steps {
                 echo 'Building the application...'
                 // Replace with your build command (e.g., for Maven, Gradle, NPM, etc.)
-                sh 'mvn clean package'
+                bat 'mvn clean package'
             }
             post {
                 success {
@@ -19,7 +19,7 @@ pipeline {
             steps {
                 echo 'Running tests...'
                 // Replace with your test command (e.g., for Maven, Gradle, NPM, etc.)
-                sh 'mvn test'
+                bat 'mvn test'
             }
         }
 
@@ -27,7 +27,7 @@ pipeline {
             steps {
                 echo 'Running Code Quality Analysis...'
                 // Assuming a local code quality tool or script
-                sh './run-code-quality-analysis.sh' // Replace with your actual script or command
+                bat 'run-code-quality-analysis.bat' // Replace with your actual script or command
             }
         }
 
@@ -35,8 +35,10 @@ pipeline {
             steps {
                 echo 'Deploying to test environment...'
                 // Replace with your deployment command (e.g., copying files to server, running scripts, etc.)
-                sh 'scp target/myapp.jar user@test-server:/path/to/deploy'
-                sh 'ssh user@test-server "java -jar /path/to/deploy/myapp.jar &"'
+                bat '''
+                copy target\\myapp.jar \\path\\to\\deploy
+                start javaw -jar \\path\\to\\deploy\\myapp.jar
+                '''
             }
         }
 
@@ -45,8 +47,10 @@ pipeline {
                 input message: 'Promote to production?', ok: 'Release'
                 echo 'Releasing to production...'
                 // Replace with your release command (e.g., copying files to production server, running scripts, etc.)
-                sh 'scp target/myapp.jar user@prod-server:/path/to/deploy'
-                sh 'ssh user@prod-server "java -jar /path/to/deploy/myapp.jar &"'
+                bat '''
+                copy target\\myapp.jar \\path\\to\\deploy\\prod
+                start javaw -jar \\path\\to\\deploy\\prod\\myapp.jar
+                '''
             }
         }
 
@@ -55,7 +59,7 @@ pipeline {
                 echo 'Setting up monitoring and alerting...'
                 // Add your monitoring setup scripts or commands here
                 // For example, sending a notification to a monitoring tool API
-                sh 'curl -X POST -H "Content-Type: application/json" -d \'{"message": "Deployment complete", "status": "success"}\' https://monitoring-tool/api/alerts'
+                bat 'curl -X POST -H "Content-Type: application/json" -d "{\\"message\\": \\"Deployment complete\\", \\"status\\": \\"success\\"}" https://monitoring-tool/api/alerts'
             }
         }
     }
