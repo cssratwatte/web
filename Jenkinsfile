@@ -1,14 +1,5 @@
 pipeline {
     agent any
-    
-    stages {
-        stage('Declarative: Checkout SCM') {
-            steps {
-                echo 'Checking out SCM...'
-                sleep time: 725, unit: 'MILLISECONDS'
-                checkout scm
-            }
-        }
         stage('Build') {
             steps {
                 echo 'Building the code...'
