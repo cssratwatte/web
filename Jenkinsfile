@@ -1,78 +1,81 @@
 pipeline {
     agent any
-
+    
     stages {
+        stage('Declarative: Checkout SCM') {
+            steps {
+                echo 'Checking out SCM...'
+                checkout scm
+            }
+        }
         stage('Build') {
             steps {
-                echo 'Building the application...'
-                // Replace with your build command (e.g., for Maven, Gradle, NPM, etc.)
-                bat 'mvn clean package'
+                echo 'Building the code...'
+                // Add your build commands here, e.g., Maven or Gradle build
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Running unit tests...'
+                // Add your unit test commands here, e.g., JUnit tests
+                echo 'Running integration tests...'
+                // Add your integration test commands here
             }
             post {
                 success {
-                    archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+                    mail to: "chathurniratwatte@gmail.com",
+                        subject: "Build Status - SUCCESS",
+                        body: "Unit and integration tests were successful!"
+                }
+                failure {
+                    mail to: "chathurniratwatte@gmail.com",
+                        subject: "Build Status - FAILURE",
+                        body: "Unit and integration tests failed!"
                 }
             }
         }
-
-        stage('Test') {
-            steps {
-                echo 'Running tests...'
-                // Replace with your test command (e.g., for Maven, Gradle, NPM, etc.)
-                bat 'mvn test'
-            }
-        }
-
         stage('Code Quality Analysis') {
             steps {
-                echo 'Running Code Quality Analysis...'
-                // Assuming a local code quality tool or script
-                bat 'run-code-quality-analysis.bat' // Replace with your actual script or command
+                echo 'Performing code quality analysis...'
+                // Add your code quality analysis commands here, e.g., SonarQube
             }
         }
-
         stage('Deploy to Test Environment') {
             steps {
                 echo 'Deploying to test environment...'
-                // Replace with your deployment command (e.g., copying files to server, running scripts, etc.)
-                bat '''
-                copy target\\myapp.jar \\path\\to\\deploy
-                start javaw -jar \\path\\to\\deploy\\myapp.jar
-                '''
+                // Add your deployment commands here, e.g., Docker Compose or AWS Elastic Beanstalk
             }
         }
-
         stage('Release') {
             steps {
-                input message: 'Promote to production?', ok: 'Release'
-                echo 'Releasing to production...'
-                // Replace with your release command (e.g., copying files to production server, running scripts, etc.)
-                bat '''
-                copy target\\myapp.jar \\path\\to\\deploy\\prod
-                start javaw -jar \\path\\to\\deploy\\prod\\myapp.jar
-                '''
+                echo 'Releasing the application...'
+                // Add your release commands here, e.g., Octopus Deploy or AWS CodeDeploy
             }
         }
-
         stage('Monitoring and Alerting') {
             steps {
                 echo 'Setting up monitoring and alerting...'
-                // Add your monitoring setup scripts or commands here
-                // For example, sending a notification to a monitoring tool API
-                bat 'curl -X POST -H "Content-Type: application/json" -d "{\\"message\\": \\"Deployment complete\\", \\"status\\": \\"success\\"}" https://monitoring-tool/api/alerts'
+                // Add your monitoring and alerting commands here, e.g., Datadog or New Relic
             }
         }
     }
 
     post {
+        always {
+            echo 'Cleaning up...'
+            // Add any cleanup commands here
+        }
         success {
-            echo 'Pipeline completed successfully!'
+            echo 'Build was successful!'
+            mail to: "chathurniratwatte@gmail.com",
+                subject: "Pipeline Status - SUCCESS",
+                body: "The pipeline completed successfully."
         }
         failure {
-            echo 'Pipeline failed.'
-        }
-        always {
-            echo 'Pipeline finished.'
+            echo 'Build failed!'
+            mail to: "chathurniratwatte@gmail.com",
+                subject: "Pipeline Status - FAILURE",
+                body: "The pipeline failed."
         }
     }
 }
